@@ -13,8 +13,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DeadHiDaylight/DeadHiDaylight.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values
@@ -57,7 +59,12 @@ ACamper::ACamper()
 
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	
+	if (HasAuthority())
+	{
+		GetCharacterMovement()->NetworkSmoothingMode = ENetworkSmoothingMode::Disabled;
+		GetCharacterMovement()->NetworkMaxSmoothUpdateDistance = 0.0f;
+		GetCharacterMovement()->NetworkNoSmoothUpdateDistance = 0.0f;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -112,6 +119,7 @@ void ACamper::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACamper::CamperMove(const FInputActionValue& value)
 {
+	NET_LOG(LogTemp, Warning, TEXT("ACamper::CamperMove"));
 	FVector2D dir = value.Get<FVector2D>();
 	
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -125,6 +133,11 @@ void ACamper::CamperMove(const FInputActionValue& value)
 	// add movement 
 	AddMovementInput(ForwardDirection, dir.Y);
 	AddMovementInput(RightDirection, dir.X);
+
+	if (HasAuthority() == false && IsLocallyControlled() == true)
+	{
+		ServerRPC_CamperMove(value);
+	} 
 }
 
 void ACamper::Look(const struct FInputActionValue& value)
@@ -143,29 +156,45 @@ void ACamper::Run(const struct FInputActionValue& value)
 	if (Anim->bRun) moveComp->MaxWalkSpeed = maxSpeed * 2;
 	else moveComp->MaxWalkSpeed = moveSpeed * 2;
 
+	if (HasAuthority() == false && IsLocallyControlled() == true)
+	{
+		ServerRPC_Run();
+	}
 	// UE_LOG(LogTemp, Warning, TEXT("ACamper::Run %f"), movement->MaxWalkSpeed);
 }
 
 void ACamper::Start_Crouch(const struct FInputActionValue& value)
 {
+	NET_LOG(LogTemp, Warning, TEXT("ACamper::StartCrouch"));
+	
 	if (Anim) Anim->IsCrouch(true);
 	
 	if (Anim)
 	{
 		moveComp->MaxWalkSpeed = crouchSpeed * 2;
 	}
-	// UE_LOG(LogTemp, Warning, TEXT("ACamper::StartCrouch %f"), moveComp->MaxWalkSpeed);
+
+	if (HasAuthority() == false && IsLocallyControlled() == true)
+	{
+		ServerRPC_StartCrouch();
+	}
 }
 
 void ACamper::End_Crouch(const struct FInputActionValue& value)
 {
+	NET_LOG(LogTemp, Warning, TEXT("ACamper::EndCrouch %f"), moveComp->MaxWalkSpeed);
+	
 	if (Anim) Anim->IsCrouch(false);
 	
 	if (Anim)
 	{
 		moveComp->MaxWalkSpeed = moveSpeed * 2;
 	}
-	// UE_LOG(LogTemp, Warning, TEXT("ACamper::EndCrouch %f"), moveComp->MaxWalkSpeed);
+
+	if (HasAuthority() == false && IsLocallyControlled() == true)
+	{
+		ServerRPC_EndCrouch();
+	}
 }
 void ACamper::CheckInteractPoint()
 {
@@ -237,4 +266,48 @@ void ACamper::Test()
 	{
 		SaveInteract->StopInteraction(this);
 	}
+}
+
+void ACamper::ServerRPC_CamperMove_Implementation(const FInputActionValue& InputActionValue)
+{
+	CamperMove(InputActionValue);
+}
+
+void ACamper::ServerRPC_Run_Implementation()
+{
+	Run(0);
+}
+
+void ACamper::ServerRPC_StartCrouch_Implementation()
+{
+	NET_LOG(LogTemp, Warning, TEXT("ACamper::ServerRPC_StartCrouch_Implementation"));
+	Start_Crouch(0);
+	MulticastRPC_StartCrouch();
+}
+
+void ACamper::ServerRPC_EndCrouch_Implementation()
+{
+	NET_LOG(LogTemp, Warning, TEXT("ACamper::ServerRPC_EndCrouch_Implementation"));
+	End_Crouch(0);
+	MulticastRPC_EndCrouch();
+}
+
+void ACamper::MulticastRPC_StartCrouch_Implementation()
+{
+	if (HasAuthority() || IsLocallyControlled())
+	{
+		return;
+	}
+	NET_LOG(LogTemp, Warning, TEXT("MulticastRPC_StartCrouch_Implementation"));
+	Start_Crouch(0);
+}
+
+void ACamper::MulticastRPC_EndCrouch_Implementation()
+{
+	if (HasAuthority() || IsLocallyControlled())
+	{
+		return;
+	}
+	NET_LOG(LogTemp, Warning, TEXT("MulticastRPC_EndCrouch_Implementation"));
+	End_Crouch(0);
 }

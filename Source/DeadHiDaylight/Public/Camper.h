@@ -94,5 +94,18 @@ public:
 	void Test();
 	UPROPERTY()
 	UInteractionPoint* SaveInteract;
+	
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Run();
+	UFUNCTION(Server, Unreliable)
+	void ServerRPC_CamperMove(const FInputActionValue& InputActionValue);
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_StartCrouch();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_StartCrouch();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_EndCrouch();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_EndCrouch();
 };
 

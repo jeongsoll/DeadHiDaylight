@@ -4,6 +4,8 @@
 #include "CamperAnimInstance.h"
 
 #include "Camper.h"
+#include "DeadHiDaylight/DeadHiDaylight.h"
+#include "Net/UnrealNetwork.h"
 
 void UCamperAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -34,7 +36,7 @@ void UCamperAnimInstance::IsCrouch(bool value)
 {
 	bCrouch = value;
 	randValue = RandomValue();
-	UE_LOG(LogTemp, Warning, TEXT("UCamperAnimInstance::bCrouch %d randomValue : %d"), bCrouch, randValue);
+	// NET_LOG(LogTemp, Warning, TEXT("UCamperAnimInstance::bCrouch %d randomValue : %d"), bCrouch, randValue);
 }
 
 int32 UCamperAnimInstance::RandomValue()
