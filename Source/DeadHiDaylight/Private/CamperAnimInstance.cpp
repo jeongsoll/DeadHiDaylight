@@ -5,6 +5,7 @@
 
 #include "Camper.h"
 
+
 void UCamperAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);

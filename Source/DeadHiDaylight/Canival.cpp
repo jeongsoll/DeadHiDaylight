@@ -15,6 +15,8 @@ ACanival::ACanival()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
+	//입력
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> TempIMC(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/KHA/Carnival/Inputs/IMC_Canival.IMC_Canival'"));
 	if (TempIMC.Succeeded())
 	{
@@ -31,11 +33,7 @@ ACanival::ACanival()
 	{
 		ia_kick = TempIAKick.Object;
 	}
-	ConstructorHelpers::FObjectFinder<UAnimMontage> TempKickMontage(TEXT("/Script/Engine.AnimMontage'/Game/KHA/Carnival/Character/Animations/Obstacles/CA_Destroy_Pallet_Montage.CA_Destroy_Pallet_Montage'"));
-	if (TempKickMontage.Succeeded())
-	{
-		MyAnimMontage = TempKickMontage.Object;
-	}
+
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +58,8 @@ void ACanival::BeginPlay()
 void ACanival::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	
 
 }
 
@@ -103,13 +103,14 @@ void ACanival::Kick(const struct FInputActionValue& inputValue)
 void ACanival::PlayKick(const FInputActionValue& inputValue)
 {
 	// MyAnimMontage가 유효한지 확인한 후, 애니메이션 몽타주 재생
-	if (MyAnimMontage)
-	{
-		PlayAnimMontage(MyAnimMontage);
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("킥"));
-		}
-	}
+	// if (MyAnimMontage)
+	// {
+	// 	PlayAnimMontage(MyAnimMontage);
+	// 	if (GEngine)
+	// 	{
+	// 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("킥"));
+	// 	}
+	// }
 	
 }
+

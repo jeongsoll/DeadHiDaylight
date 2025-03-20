@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "Canival.generated.h"
 
+
+
+
 UCLASS()
 class DEADHIDAYLIGHT_API ACanival : public ACharacter
 {
@@ -18,17 +21,17 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(	class UInputComponent* PlayerInputComponent) override;
+
+	
 	void Move(const struct FInputActionValue& inputValue);
 	void Kick(const struct FInputActionValue& inputValue);
 	void PlayKick(const FInputActionValue& inputValue);
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetupPlayerInputComponent(
-	class UInputComponent* PlayerInputComponent) override;
-
+	//입력
 	UPROPERTY(EditDefaultsOnly, Category=Input)
 	class UInputMappingContext* imc_carnival;
 	
@@ -38,23 +41,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Input)
 	class UInputAction* ia_kick;
 
-	UPROPERTY(EditDefaultsOnly, Category = Input)
-	class UAnimMontage* MyAnimMontage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	float speed = 0;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	float direction = 0;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	bool CanAttack  = false;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	bool Input_LMB  = false;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	bool ElapsedTime   = false;
 
 
 };
